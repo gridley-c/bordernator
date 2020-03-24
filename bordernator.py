@@ -3,7 +3,7 @@
 
 
 from glob import glob
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw, ImageFont
 
 file_list = glob('*.JPG')
 
@@ -20,19 +20,25 @@ while border_colour not in {"black", "white"}:
 for photo in file_list:
     im=Image.open(photo)
     im.size
-    print(im.size)
     photo_x = im.size[0]
-    print(f"Photo x resolution is {photo_x}")
     photo_y = im.size[1]
-    print(f"Photo y resolution is {photo_y}")
+    font_size = int(0.005 * (max(photo_x, photo_y)))
+    txt_x = (int(0.005 * photo_x))
+    txt_y = (int(0.005 * photo_y))
 
     if (photo_x / photo_y) >= 1.6: 
         border_y_px = int(0.1 * photo_y)
         border_photo = ImageOps.expand(im, border=(1, border_y_px), fill=(border_colour))
+        font = ImageFont.truetype("Symtext.ttf", font_size)
+        signed = ImageDraw.Draw(border_photo)
+        signed.text((txt_x,txt_y), "DERELICTE WORLD | CARL GRIDLEY", font = font, fill=(125,125,125))
         border_photo.save('bordered-%s' %photo, quality=94)
     
     else:
         border_px = int(0.03 * max(photo_x, photo_y))
-        print(border_px)
         border_photo = ImageOps.expand(im, border=border_px, fill=(border_colour)) 
+        font = ImageFont.truetype("Symtext.ttf", font_size)
+        signed = ImageDraw.Draw(border_photo)
+        signed.text((txt_x,txt_y), "DERELICTE WORLD | CARL GRIDLEY", font = font, fill=(125,125,125))
         border_photo.save('bordered-%s' %photo, quality=94)
+
