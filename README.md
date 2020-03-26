@@ -1,30 +1,11 @@
 # bordernator
-Uses imagemagick to automatically apply a border design to images in a directory
+Uses PILLOW to apply a border to photos in a directory. 
 
-BORDERNATOR
+The border and text label automatically scale with image size. 
 
-Takes a directory, finds jpgs and applies a scaled border and text label with imagemagick.
+For cinematic aspect ratios it will add cinema bars instead of a border.  
 
-1 INPUT
-Do you want white or black border (default black)
+Bordernator will also create and apply a text label using IPTC metadata tags.
 
-Store in borderColour variable
-
-2 FILES
-Lists all files in directory (using glom maybe?)
-
-3 FOR EACH FILE
-
-Identify x and y resolution, store in variables
-
-Calculate 3% of each for square borders
-
-Calculate 10% of y for cinematic with 1px left and right borders
-
-Is this a cinematic aspect ratio? (Is y/x 1.6 or greater?) then apply Cinema Bars border
-
-Else apply square border
-
-IMAGEMAGICK
-Construct command using Python integration that takes the variables calculated for Cinematic or Square for x and y border, also applies a text label that is 67% of the height of x
+Requires GLOB, PILLOW and iptcinfo3.
 

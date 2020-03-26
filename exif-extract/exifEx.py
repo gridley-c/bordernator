@@ -1,7 +1,6 @@
 #! python3
 
 from iptcinfo3 import IPTCInfo
-import re
 
 #info = IPTCInfo('img3.jpg')
 #title = str(info['object name'])
