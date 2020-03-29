@@ -8,7 +8,8 @@ from iptcinfo3 import IPTCInfo
 
 #gather a list of the files to be bordernated
 file_list = glob('*.JPG')
-
+print(file_list)
+file_list.extend(glob('*.jpg'))
 
 print("I found these files:")
 print(file_list)
