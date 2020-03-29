@@ -5,6 +5,12 @@
 from glob import glob
 from PIL import Image, ImageOps, ImageDraw, ImageFont
 from iptcinfo3 import IPTCInfo
+from pathlib import Path
+import logging
+
+#there is a noisy warning from IPTCInfo that does not affect functionality, so we will suppress that
+iptcinfo_logger = logging.getLogger('iptcinfo')
+iptcinfo_logger.setLevel(logging.ERROR)
 
 
 #gather a list of the files to be bordernated
@@ -52,8 +58,10 @@ def cinematicBorder(photo):
     font = ImageFont.truetype("Symtext.ttf", font_size)
     signed = ImageDraw.Draw(border_photo)
     signed.text((txt_x,txt_y), label_text, font = font, fill=(125,125,125))
-    border_photo.save('bordered-%s' %photo, quality=94)
-
+    save_path = save_folder / (f"{border_colour}-{photo}")
+    border_photo.save(save_path, quality=94)
+    print(f"{photo} has been bordernated.")
+    print("\n")
 
 #logic for normal borders
 def squareBorder(photo):
@@ -62,9 +70,13 @@ def squareBorder(photo):
     font = ImageFont.truetype("Symtext.ttf", font_size)
     signed = ImageDraw.Draw(border_photo)
     signed.text((txt_x,txt_y), label_text, font = font, fill=(125,125,125))
-    border_photo.save('bordered-%s' %photo, quality=94)
+    save_path = save_folder / (f"{border_colour}-{photo}")
+    border_photo.save(save_path, quality=94)
+    print(f"{photo} has been bordernated.")
+    print("\n")
 
 
+#main program logic, runs through the files and applies desired border to each
 for photo in file_list:
     im=Image.open(photo)
     im.size
@@ -74,11 +86,16 @@ for photo in file_list:
     txt_x = (int(0.005 * photo_x))
     txt_y = (int(0.005 * photo_y))
     label_text = label_extract(photo)
-
+    Path("bordernated/").mkdir(parents=True, exist_ok=True) 
+    save_folder = Path('bordernated/')
     if (photo_x / photo_y) >= 1.6:
         cinematicBorder(photo)
 
     else:
         squareBorder(photo)
 
+
+#thanks for bordernating
+print("\n")
+print("Thank you for using BORDERNATOR for all your bordernating needs.")
     
