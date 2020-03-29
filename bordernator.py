@@ -6,13 +6,14 @@ from glob import glob
 from PIL import Image, ImageOps, ImageDraw, ImageFont
 from iptcinfo3 import IPTCInfo
 
+
 #gather a list of the files to be bordernated
 file_list = glob('*.JPG')
-print(file_list)
 file_list.extend(glob('*.jpg'))
-
 print("I found these files:")
-print(file_list)
+print(*file_list, sep = "\n")
+print("\n")
+
 
 #what colour do we want the border to be?
 print("What colour do you want the border?")
@@ -20,16 +21,28 @@ border_colour = None
 while border_colour not in {"black", "white"}:
     border_colour = input("Please choose black or white: ")
 
-#logic for extracting the label to be used from the IPTC metadata
 
+#do you want a text label?
+print("Do you want a text label using IPTC metadata?")
+label_wanted = None
+while label_wanted not in {"yes", "y", "no", "n"}:
+    label_wanted = input("Please choose (y)es or (n)o: ")
+
+
+#logic for extracting the label to be used from the IPTC metadata, if the user wants it
 def label_extract(photo):
     info = IPTCInfo(photo)     
     title = str(info['object name'])     
     website = str(info['copyright notice'])     
     author = str(info['by-line'])
-    label = (f"{title[1:]} | {website[2:-1]} | {author[2:-1]}")
-    print(label)
-    return(label)
+    if label_wanted in {"yes", "y"}:
+        label = (f"{title[1:]} | {website[2:-1]} | {author[2:-1]}")
+        print(label)
+        return(label)
+    else:
+        label = ""
+        print(label)
+        return(label)
 
 
 #logic for adding cinematic borders
@@ -40,6 +53,7 @@ def cinematicBorder(photo):
     signed = ImageDraw.Draw(border_photo)
     signed.text((txt_x,txt_y), label_text, font = font, fill=(125,125,125))
     border_photo.save('bordered-%s' %photo, quality=94)
+
 
 #logic for normal borders
 def squareBorder(photo):
