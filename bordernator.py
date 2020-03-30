@@ -4,6 +4,7 @@
 
 from glob import glob
 from PIL import Image, ImageOps, ImageDraw, ImageFont
+from PIL.ExifTags import TAGS
 from iptcinfo3 import IPTCInfo
 from pathlib import Path
 import logging
@@ -45,11 +46,9 @@ def label_extract(photo):
     author = str(info['by-line'])
     if label_wanted in {"yes", "y"}:
         label = (f"{title[1:]} | {website[2:-1]} | {author[2:-1]}")
-#        print(label)
         return(label)
     else:
         label = ""
-#        print(label)
         return(label)
 
 
@@ -61,9 +60,8 @@ def cinematicBorder(photo):
     signed = ImageDraw.Draw(border_photo)
     signed.text((txt_x,txt_y), label_text, font = font, fill=(125,125,125))
     save_path = save_folder / (f"{border_colour}-{photo}")
-    border_photo.save(save_path, quality=94)
+    border_photo.save(save_path, quality=94, exif=exif)
     print(f"{photo} has been bordernated.")
-#    print("\n")
 
 #logic for normal borders
 def squareBorder(photo):
@@ -73,14 +71,14 @@ def squareBorder(photo):
     signed = ImageDraw.Draw(border_photo)
     signed.text((txt_x,txt_y), label_text, font = font, fill=(125,125,125))
     save_path = save_folder / (f"{border_colour}-{photo}")
-    border_photo.save(save_path, quality=94)
+    border_photo.save(save_path, quality=94, exif=exif)
     print(f"{photo} has been bordernated.")
-#    print("\n")
 
 
 #main program logic, runs through the files and applies desired border to each
 for photo in file_list:
     im=Image.open(photo)
+    exif = im.info['exif']
     im.size
     photo_x = im.size[0]
     photo_y = im.size[1]
