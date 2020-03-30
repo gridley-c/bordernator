@@ -26,6 +26,7 @@ print("What colour do you want the border?")
 border_colour = None
 while border_colour not in {"black", "white"}:
     border_colour = input("Please choose black or white: ")
+    print("\n")
 
 
 #do you want a text label?
@@ -33,6 +34,7 @@ print("Do you want a text label using IPTC metadata?")
 label_wanted = None
 while label_wanted not in {"yes", "y", "no", "n"}:
     label_wanted = input("Please choose (y)es or (n)o: ")
+    print("\n")
 
 
 #logic for extracting the label to be used from the IPTC metadata, if the user wants it
@@ -43,11 +45,11 @@ def label_extract(photo):
     author = str(info['by-line'])
     if label_wanted in {"yes", "y"}:
         label = (f"{title[1:]} | {website[2:-1]} | {author[2:-1]}")
-        print(label)
+#        print(label)
         return(label)
     else:
         label = ""
-        print(label)
+#        print(label)
         return(label)
 
 
@@ -61,7 +63,7 @@ def cinematicBorder(photo):
     save_path = save_folder / (f"{border_colour}-{photo}")
     border_photo.save(save_path, quality=94)
     print(f"{photo} has been bordernated.")
-    print("\n")
+#    print("\n")
 
 #logic for normal borders
 def squareBorder(photo):
@@ -73,7 +75,7 @@ def squareBorder(photo):
     save_path = save_folder / (f"{border_colour}-{photo}")
     border_photo.save(save_path, quality=94)
     print(f"{photo} has been bordernated.")
-    print("\n")
+#    print("\n")
 
 
 #main program logic, runs through the files and applies desired border to each
