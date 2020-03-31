@@ -45,7 +45,7 @@ def label_extract(photo):
     website = str(info['copyright notice'])     
     author = str(info['by-line'])
     if label_wanted in {"yes", "y"}:
-        label = (f"{title[1:]} | {website[2:-1]} | {author[2:-1]}")
+        label = (f"{author[2:-1]} | {website[2:-1]} | {title[1:]}")
         return(label)
     else:
         label = ""
