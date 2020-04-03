@@ -45,29 +45,35 @@ while label_wanted not in {"yes", "y", "no", "n"}:
 def label_extract(photo):
     info = IPTCInfo(photo)
     str_info = str(info)
-    infoRegex = re.compile(r'\'(.*)\'')
+    infoRegex = re.compile(r'\'(\w.*\w)\'')
     
     if 'object name' in str_info:
         titleRaw = str(info['object name'])
         mot = infoRegex.search(titleRaw)
-        title = (f" | \'{mot.group(1)}\'")
-
+        if mot is None:
+            title = ""
+        else:
+            title = (f"\'{mot.group(1)}\'")
     else:
         title = ""       
 
     if 'copyright notice' in str_info:
         websiteRaw = str(info['copyright notice'])
         mow = infoRegex.search(websiteRaw)
-        website = (f"{mow.group(1)} ")
-        
+        if mow is None:
+            website = ""
+        else:
+            website = (f"{mow.group(1)}  ")
     else:
         website = ""
 
     if 'by-line' in str_info:
         byLineRaw = str(info['by-line'])
         mob = infoRegex.search(byLineRaw)
-        author = (f"| {mob.group(1)}")
-        
+        if mob is None:
+            author = ""
+        else:
+            author = (f"{mob.group(1)}  ")
     else:
         author = ""
 
