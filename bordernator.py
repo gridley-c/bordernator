@@ -8,6 +8,7 @@ from PIL.ExifTags import TAGS
 from iptcinfo3 import IPTCInfo
 from pathlib import Path
 import logging
+import re
 
 #there is a noisy warning from IPTCInfo that does not affect functionality, so we will suppress that
 iptcinfo_logger = logging.getLogger('iptcinfo')
@@ -40,25 +41,40 @@ while label_wanted not in {"yes", "y", "no", "n"}:
 
 #logic for extracting the label to be used from the IPTC metadata, if the user wants it
 #IPTCInfo doesn't seem to return a dictionary so we have to check if the tag we want exists using a string, or it will return nonsense
+#I also need a regular expression to sensibly extract the text from the tags
 def label_extract(photo):
-    info = IPTCInfo(photo)     
+    info = IPTCInfo(photo)
     str_info = str(info)
-
+    infoRegex = re.compile(r'\'(.*)\'')
+    
     if 'object name' in str_info:
-        title = str(info['object name'])
+        titleRaw = str(info['object name'])
+        mot = infoRegex.search(titleRaw)
+        title = (f" | \'{mot.group(1)}\'")
+
     else:
-        title = ""
+        title = ""       
+
     if 'copyright notice' in str_info:
-        website = str(info['copyright notice'])
+        websiteRaw = str(info['copyright notice'])
+        mow = infoRegex.search(websiteRaw)
+        website = (f"{mow.group(1)} ")
+        
     else:
         website = ""
+
     if 'by-line' in str_info:
-        author = str(info['by-line'])
+        byLineRaw = str(info['by-line'])
+        mob = infoRegex.search(byLineRaw)
+        author = (f"| {mob.group(1)}")
+        
     else:
         author = ""
-    if label_wanted in {"yes", "y"}:
-        label = (f"{author[2:-1]} | {website[2:-1]} | {title[1:]}")
-        return(label)
+
+    if label_wanted in {"yes", "y"}: 
+       label = (f"{website}{author}{title}")
+       return(label)
+
     else:
         label = ""
         return(label)
