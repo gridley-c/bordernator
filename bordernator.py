@@ -39,18 +39,29 @@ while label_wanted not in {"yes", "y", "no", "n"}:
 
 
 #logic for extracting the label to be used from the IPTC metadata, if the user wants it
+#IPTCInfo doesn't seem to return a dictionary so we have to check if the tag we want exists using a string, or it will return nonsense
 def label_extract(photo):
     info = IPTCInfo(photo)     
-    title = str(info['object name'])     
-    website = str(info['copyright notice'])     
-    author = str(info['by-line'])
+    str_info = str(info)
+
+    if 'object name' in str_info:
+        title = str(info['object name'])
+    else:
+        title = ""
+    if 'copyright notice' in str_info:
+        website = str(info['copyright notice'])
+    else:
+        website = ""
+    if 'by-line' in str_info:
+        author = str(info['by-line'])
+    else:
+        author = ""
     if label_wanted in {"yes", "y"}:
         label = (f"{author[2:-1]} | {website[2:-1]} | {title[1:]}")
         return(label)
     else:
         label = ""
         return(label)
-
 
 #logic for adding cinematic borders
 def cinematicBorder(photo):
