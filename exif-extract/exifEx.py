@@ -4,29 +4,49 @@
 #IPTCInfo doesn't return a dictionary as far as I can tell, so we need to convert to a string to check if a label exists
 
 from iptcinfo3 import IPTCInfo
+import re
 
 def label_extract(photo):
     info = IPTCInfo(photo)
     str_info = str(info)
+    infoRegex = re.compile(r'\'(\w.*\w)\'')
     
     if 'object name' in str_info:
-        title = str(info['object name'])
+        titleRaw = str(info['object name'])
+        mot = infoRegex.search(titleRaw)
+        if mot is None:
+            title = ""
+        else:
+            title = (f"\'{mot.group(1)}\'")
+
     else:
-        title = ""
-    
+        title = ""       
+
     if 'copyright notice' in str_info:
-        website = str(info['copyright notice'])
+        websiteRaw = str(info['copyright notice'])
+        mow = infoRegex.search(websiteRaw)
+        if mow is None:
+            website = ""
+        else:
+            website = (f"{mow.group(1)}  ")
+        
     else:
         website = ""
 
     if 'by-line' in str_info:
-        author = str(info['by-line'])
+        byLineRaw = str(info['by-line'])
+        mob = infoRegex.search(byLineRaw)
+        if mob is None:
+            author = ""
+        else:
+            author = (f"{mob.group(1)}  ")
+        
     else:
         author = ""
-    
-    label = (f"{author[2:-1]} | {website[2:-1]} | {title[1:]}")
+
+    label = (f"{website}{author}{title}")
     return(label)
 
 
-label = label_extract("img3.jpg")
+label = label_extract("img4.jpg")
 print(label)
