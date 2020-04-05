@@ -18,7 +18,9 @@ iptcinfo_logger.setLevel(logging.ERROR)
 #gather a list of the files to be bordernated
 file_list = glob('*.JPG')
 file_list.extend(glob('*.jpg'))
+print("\n")
 print("I found these files:")
+print("\n")
 print(*file_list, sep = "\n")
 print("\n")
 
@@ -32,16 +34,17 @@ while border_colour not in {"black", "white"}:
 
 
 #do you want a text label?
-print("Do you want a text label using IPTC metadata?")
+print("Do you want a full text label, normal exposure data, nor no label at all?")
 label_wanted = None
-while label_wanted not in {"yes", "y", "no", "n"}:
-    label_wanted = input("Please choose (y)es or (n)o: ")
+while label_wanted not in {"full", "f", "exposure", "e", "none", "n"}:
+    label_wanted = input("Please choose (f)ull, (e)xposure, (n)one: ")
     print("\n")
 
 
 #logic for extracting the label to be used from the IPTC metadata, if the user wants it
 #IPTCInfo doesn't seem to return a dictionary so we have to check if the tag we want exists using a string, or it will return nonsense
 #I also need a regular expression to sensibly extract the text from the tags
+#I have dropped the website and author IPTC tags as they are found in the base Fujifilm exif too, so no need to get them twice
 def label_extract(photo):
     info = IPTCInfo(photo)
     str_info = str(info)
@@ -56,34 +59,77 @@ def label_extract(photo):
             title = (f"\'{mot.group(1)}\'")
     else:
         title = ""       
-
-    if 'copyright notice' in str_info:
-        websiteRaw = str(info['copyright notice'])
-        mow = infoRegex.search(websiteRaw)
-        if mow is None:
-            website = ""
-        else:
-            website = (f"{mow.group(1)}  ")
-    else:
-        website = ""
-
-    if 'by-line' in str_info:
-        byLineRaw = str(info['by-line'])
-        mob = infoRegex.search(byLineRaw)
-        if mob is None:
-            author = ""
-        else:
-            author = (f"{mob.group(1)}  ")
-    else:
+    
+    artist,copy,exposure = extract_exif(photo)
+    if artist is None:
         author = ""
+    else:
+        author = artist
+    if copy is None:
+        website = ""
+    else: website = copy
+        
+#    if 'copyright notice' in str_info:
+#        websiteRaw = str(info['copyright notice'])
+#        mow = infoRegex.search(websiteRaw)
+#        if mow is None:
+#            website = ""
+#        else:
+#            website = (f"{mow.group(1)}  ")
+#    else:
+#        website = ""
+#
+#    if 'by-line' in str_info:
+#        byLineRaw = str(info['by-line'])
+#        mob = infoRegex.search(byLineRaw)
+#        if mob is None:
+#            author = ""
+#        else:
+#            author = (f"{mob.group(1)}  ")
+#    else:
+#        author = ""
 
-    if label_wanted in {"yes", "y"}: 
-       label = (f"{website}{author}{title}")
+    if label_wanted in {"full", "f"}: 
+       label = (f"{website}  {author}  {title}")
        return(label)
-
+    elif label_wanted in {"e", "exposure"}:
+        label = (f"{exposure}")
+        return(label)
+    elif label_wanted in {"n", "none"}:
+        label = ""
+        return(label)
     else:
         label = ""
         return(label)
+
+#this function extracts tags from the exif data, including exposure details and the author / website fields
+def extract_exif(photo):
+    infoRegex = re.compile(r'(\w.*\w)')
+    exif_ex = {}
+    i = Image.open(photo)
+    exif_raw = i.getexif()
+    for tag, value in exif_raw.items():
+        extracted = TAGS.get(tag, tag)
+        exif_ex[extracted] = value
+    mo_artist = (infoRegex.search(exif_ex['Artist']))
+    if mo_artist is None:
+        artist = ""
+    else:
+        artist = mo_artist.group(1)
+    mo_copy = (infoRegex.search(exif_ex['Copyright']))
+    if mo_copy is None:
+        copy = ""
+    else:
+        copy = mo_copy.group(1)
+    basic_exif = (f"{artist}  {copy}")
+    shutter_raw = exif_ex['ExposureTime']
+    shutter = (f"{int(shutter_raw[0] / shutter_raw[0])}/{int(shutter_raw[1] / shutter_raw[0])} sec")
+    aper_raw = exif_ex['FNumber']
+    aperture = aper_raw[0] / aper_raw[1]
+    iso_raw = exif_ex['ISOSpeedRatings']
+    iso = (f"ISO {iso_raw}")
+    exposure = (f"{shutter}  F{aperture}  {iso}")
+    return(artist,copy,exposure)
 
 #logic for adding cinematic borders
 def cinematicBorder(photo):
@@ -112,6 +158,7 @@ def squareBorder(photo):
 for photo in file_list:
     im=Image.open(photo)
     exif = im.info['exif']
+    #exif_dict = get_exif(photo)
     im.size
     photo_x = im.size[0]
     photo_y = im.size[1]
